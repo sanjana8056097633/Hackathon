@@ -1,0 +1,394 @@
+{
+  "name": "IQAC AGENTIC AI WORKFLOW Final",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -180,
+        0
+      ],
+      "id": "bfb39d66-6f36-42a3-bca5-44f8e9a2ce5e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Ft5JBUzs-XkrMc5lbkjUSacFnFT0jGbya07970h59uo",
+          "mode": "list",
+          "cachedResultName": "B.ed bootcamp data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ft5JBUzs-XkrMc5lbkjUSacFnFT0jGbya07970h59uo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ft5JBUzs-XkrMc5lbkjUSacFnFT0jGbya07970h59uo/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2173a8a5-be9a-4808-9ae3-af0b7789b82d",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jYCCeXgDPv1h0Nqt",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        660,
+        280
+      ],
+      "id": "e27f3e9a-4b01-424f-bedc-b4d337d3c762",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0ykqRrC7CDUNy7fn",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a validator for NAAC Gen AI Bootcamp outcome.\n\nBased on the following folder names, check whether the following required documents are present:\n\nRequired:\n- Syllabus with CO & PO Mapping\n- Lesson Plan (AAA Format)\n- Lecture Notes (PPT)\n- Question Bank\n- Internal Assessment (IA) Question Papers\n- IA Answer Keys\n- In-class Assessments (quizzes, MCQs, puzzles)\n\n\nLesson Plan as per AAA guidelines,\nLecture notes in PPT format,\nQuestion Bank\nInternal Assessment (IA) question papers,\nIA answer keys,\nIn-class assessments (e.g., quizzes, MCQs, puzzles),\n{{ $json['Link of Gen AI Outcome'] }}\n\nreturn the output as yes or no:\n- Syllabus with CO & PO Mapping\n- Lesson Plan (AAA Format)\n- Lecture Notes (PPT)\n- Question Bank\n- Internal Assessment (IA) Question Papers\n- IA Answer Keys\n- In-class Assessments (quizzes, MCQs, puzzles)\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        180,
+        0
+      ],
+      "id": "d9792ab3-af27-4ad4-95ca-63dc584be74c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a NAAC feedback generator.\n\nGiven the following:\n- Faculty Name:{{ $('Google Sheets').item.json['Name of the Faculty'] }}\n- Course: {{ $('Google Sheets').item.json['Course Name'] }}\n- Available Documents: {{ $('Google Sheets').item.json['Link of Gen AI Outcome'] }}\n\n\n\n\n",
+        "options": {
+          "systemMessage": "from the link provided go through the entire content and provide me overall feedback and summary from the link\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        520,
+        0
+      ],
+      "id": "9bbb2ce7-94a1-4d55-870f-915489362701",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Google Sheets').item.json[\"Mail id\"] }}",
+        "subject": "SUMMARY",
+        "emailType": "text",
+        "message": "={{ $json[\"output\"] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1660,
+        0
+      ],
+      "id": "686ef4c9-6a18-4297-a221-d61b7e56214e",
+      "name": "Gmail",
+      "webhookId": "684d9887-538b-4c7f-a6e6-947bc4837639",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "8DKGWuQWdD8ZmTn5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summarize the following into just 3 short sentences, highlighting the core Gen AI concepts and their application in teaching:\n\n{{ $json[\"output\"] }}\n\nMake it concise and suitable to paste into an Excel/Google Sheet.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        840,
+        0
+      ],
+      "id": "74d9a490-4414-43bf-bdcc-1943bb1febc3",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Ft5JBUzs-XkrMc5lbkjUSacFnFT0jGbya07970h59uo",
+          "mode": "list",
+          "cachedResultName": "B.ed bootcamp data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ft5JBUzs-XkrMc5lbkjUSacFnFT0jGbya07970h59uo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ft5JBUzs-XkrMc5lbkjUSacFnFT0jGbya07970h59uo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "output": "={{ $json.output }}",
+            "Mail id": "={{ $('Google Sheets').item.json['Mail id'] }}",
+            "Link of Gen AI Outcome": "={{ $('Google Sheets').item.json['Link of Gen AI Outcome'] }}",
+            "Year & Sem": "={{ $('Google Sheets').item.json['Year & Sem'] }}",
+            "Course Name": "={{ $('Google Sheets').item.json['Course Name'] }}",
+            "Course Code": "={{ $('Google Sheets').item.json['Course Code'] }}",
+            "Designation": "={{ $('Google Sheets').item.json.Designation }}",
+            "Name of the Faculty": "={{ $('Google Sheets').item.json['Name of the Faculty'] }}",
+            "SNo.": "={{ $('Google Sheets').item.json['SNo.'] }}",
+            "row_number": "={{ $('Google Sheets').item.json.row_number }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "SNo.",
+              "displayName": "SNo.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name of the Faculty",
+              "displayName": "Name of the Faculty",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Designation",
+              "displayName": "Designation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Course Code",
+              "displayName": "Course Code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Course Name",
+              "displayName": "Course Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Year & Sem",
+              "displayName": "Year & Sem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Link of Gen AI Outcome",
+              "displayName": "Link of Gen AI Outcome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mail id",
+              "displayName": "Mail id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "output",
+              "displayName": "output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1300,
+        0
+      ],
+      "id": "4a961708-72b2-43e1-8f3b-e97b62c6acff",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jYCCeXgDPv1h0Nqt",
+          "name": "Google Sheets account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        []
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "25a95abe-0fd2-46b2-8129-3c876d873e5b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "91a129e13840748f5d9e74900e90ceec684c158848d4ae8d1d490f9f1c74d211"
+  },
+  "id": "rtsOd2tRMpqCzaDh",
+  "tags": []
+}
