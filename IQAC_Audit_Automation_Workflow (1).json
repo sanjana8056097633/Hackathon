@@ -1,0 +1,365 @@
+{
+  "name": "IQAC Audit Automation Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "39dbb96f-7b5a-4a1a-88bd-8a23a1416d0e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1uBM8ORKjfWzDYzVw03x0Q6Q1pymHK3DNT7pbrFhbwkg",
+          "mode": "list",
+          "cachedResultName": "iqac details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uBM8ORKjfWzDYzVw03x0Q6Q1pymHK3DNT7pbrFhbwkg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 566072929,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uBM8ORKjfWzDYzVw03x0Q6Q1pymHK3DNT7pbrFhbwkg/edit#gid=566072929"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        220,
+        0
+      ],
+      "id": "b18dad0c-2fdb-4f45-be46-15556f69a7f3",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jYCCeXgDPv1h0Nqt",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summary: [Write your summary sentence here]\n\nNAAC Feedback:\n- [Point 1]\n- [Point 2]\n- [Point 3]\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        460,
+        0
+      ],
+      "id": "56f84b98-0b5c-450e-a70e-bc2b73a4c5f5",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ],
+      "id": "da61cf5b-9fdc-4271-a72c-c2f88c841eeb",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0ykqRrC7CDUNy7fn",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an NAAC documentation assistant.\n\nGenerate a 2-3 line summary and NAAC-aligned feedback based on:\n\nDepartment: {{ $('Google Sheets').item.json.Department }}\nActivity Type: {{ $('Google Sheets').item.json['Activity Type'] }}\nActivity Title: {{ $('Google Sheets').item.json['Activity Title'] }}\nDate: {{ $('Google Sheets').item.json.Date }}\nNo. of Participants: {{ $('Google Sheets').item.json['No. of Participants'] }}\nResource Person: {{ $('Google Sheets').item.json['Resource Person'] }}\nSubmitted By: {{ $('Google Sheets').item.json['Submitted By'] }}\nkidnly give me the right format of feedback and summary by removing all the newlines and extra punctuations",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        840,
+        0
+      ],
+      "id": "f1a4a6b4-73b9-4e50-92a9-ce83b7589c36",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1uBM8ORKjfWzDYzVw03x0Q6Q1pymHK3DNT7pbrFhbwkg",
+          "mode": "list",
+          "cachedResultName": "iqac details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uBM8ORKjfWzDYzVw03x0Q6Q1pymHK3DNT7pbrFhbwkg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 566072929,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uBM8ORKjfWzDYzVw03x0Q6Q1pymHK3DNT7pbrFhbwkg/edit#gid=566072929"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {
+            "Department": "={{ $('Google Sheets').item.json.Department }}"
+          },
+          "matchingColumns": [
+            "Department"
+          ],
+          "schema": [
+            {
+              "id": "Department",
+              "displayName": "Department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Activity Type",
+              "displayName": "Activity Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Activity Title",
+              "displayName": "Activity Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "No. of Participants",
+              "displayName": "No. of Participants",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Resource Person",
+              "displayName": "Resource Person",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Evidence Link",
+              "displayName": "Evidence Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Submitted By",
+              "displayName": "Submitted By",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Feedback ",
+              "displayName": "Feedback ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "NAAC Feedback",
+              "displayName": "NAAC Feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1560,
+        0
+      ],
+      "id": "1fb06edf-c4fa-4755-9717-49939073bcdb",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "jYCCeXgDPv1h0Nqt",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const output = item.json.output;\n\n  // Use regular expressions to extract Summary and NAAC Feedback\n  const summaryMatch = output.match(/\\*\\*Summary:\\*\\*\\s*([\\s\\S]*?)\\n\\s*\\*\\*NAAC-Aligned Feedback:\\*\\*/);\n  const feedbackMatch = output.match(/\\*\\*NAAC-Aligned Feedback:\\*\\*\\s*([\\s\\S]*)/);\n\n  const summary = summaryMatch ? summaryMatch[1].trim() : \"Not available\";\n  const feedback = feedbackMatch ? feedbackMatch[1].trim() : \"Not available\";\n\n  return {\n    json: {\n      Summary: summary,\n      \"NAAC Feedback\": feedback\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1260,
+        0
+      ],
+      "id": "1d0bb82b-67e5-4342-958b-f3ef382c1d77",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4f25bc2a-1d72-407b-a4a9-81c47e4264fd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "91a129e13840748f5d9e74900e90ceec684c158848d4ae8d1d490f9f1c74d211"
+  },
+  "id": "XM68WCSSkMvXHF44",
+  "tags": []
+}
